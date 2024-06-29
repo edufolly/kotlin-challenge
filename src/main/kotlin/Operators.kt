@@ -15,132 +15,124 @@ fun main() {
 
     println(red + nullKolor) // Kolor(red=255, green=0, blue=0)
 
-    val mutableRed = red.toMutableKolor()
+    val mutableBlue: MutableKolor = blue.toMutableKolor()
 
-    println(mutableRed[KolorKomponent.RED]) // 255
+    // First operand defines the result type.
+    println(mutableBlue + red) // MutableKolor(red=255, green=0, blue=255)
+    println(red + mutableBlue) // Kolor(red=255, green=0, blue=255)
 
-    println(red to blue interpolate 0.5) // Kolor(red=127, green=0, blue=127)
+    try {
+        // Must throw an exception
+        mutableBlue - red
+    } catch (e: IllegalArgumentException) {
+        println(e.message) // Blue must be between 0 and 255: -255
+    }
 }
 
+/**
+ * Interface for kolor classes.
+ */
+interface Kolorable<T> {
+    val red: Int
+    val green: Int
+    val blue: Int
+
+    fun create(
+        red: Int,
+        green: Int,
+        blue: Int,
+    ): T
+}
+
+/**
+ * Abstract class for kolor classes.
+ */
+abstract class AbstractKolor<T : Kolorable<T>>(
+    override val red: Int = 0,
+    override val green: Int = 0,
+    override val blue: Int = 0,
+) : Kolorable<T> {
+    // TODO: Could be better?
+    fun validate(newKolor: T): T {
+        require(newKolor.red in 0..255) {
+            "Red must be between 0 and 255: ${newKolor.red}"
+        }
+        require(newKolor.green in 0..255) {
+            "Green must be between 0 and 255: ${newKolor.green}"
+        }
+        require(newKolor.blue in 0..255) {
+            "Blue must be between 0 and 255: ${newKolor.blue}"
+        }
+
+        return newKolor
+    }
+
+    operator fun plus(other: Kolorable<*>?): T =
+        validate(
+            create(
+                red + (other?.red ?: 0),
+                green + (other?.green ?: 0),
+                blue + (other?.blue ?: 0),
+            ),
+        )
+
+    operator fun minus(other: Kolorable<*>?): T =
+        validate(
+            create(
+                red - (other?.red ?: 0),
+                green - (other?.green ?: 0),
+                blue - (other?.blue ?: 0),
+            ),
+        )
+
+    override fun toString(): String =
+        "${this.javaClass.simpleName}(red=$red, green=$green, blue=$blue)"
+}
+
+/**
+ * Kolor class.
+ */
 data class Kolor(
-    val red: Int,
-    val green: Int,
-    val blue: Int,
-) {
-    operator fun plus(other: Kolor?): Kolor {
-        if (other == null) {
-            return this
-        }
-
-        return Kolor(
-            red + other.red,
-            green + other.green,
-            blue + other.blue,
-        )
-    }
-
-    operator fun minus(other: Kolor?): Kolor {
-        if (other == null) {
-            return this
-        }
-
-        return Kolor(
-            red - other.red,
-            green - other.green,
-            blue - other.blue,
-        )
-    }
-
-    infix fun to(other: Kolor): ColorRange = ColorRange(this, other)
+    override val red: Int,
+    override val green: Int,
+    override val blue: Int,
+) : AbstractKolor<Kolor>() {
+    override fun create(
+        red: Int,
+        green: Int,
+        blue: Int,
+    ): Kolor = Kolor(red, green, blue)
 
     fun toMutableKolor(): MutableKolor = MutableKolor(red, green, blue)
 }
 
-data class ColorRange(
-    val start: Kolor,
-    val end: Kolor,
-) {
-    infix fun interpolate(factor: Double): Kolor {
-        val red = start.red + (end.red - start.red) * factor
-        val green = start.green + (end.green - start.green) * factor
-        val blue = start.blue + (end.blue - start.blue) * factor
-
-        return Kolor(red.toInt(), green.toInt(), blue.toInt())
-    }
-}
-
-enum class KolorKomponent {
-    RED,
-    GREEN,
-    BLUE,
-}
-
+/**
+ * Mutable kolor class.
+ */
 class MutableKolor(
-    var red: Int,
-    var green: Int,
-    var blue: Int,
-) {
-    operator fun plus(other: Kolor?): MutableKolor {
-        if (other == null) {
-            return this
-        }
+    override var red: Int,
+    override var green: Int,
+    override var blue: Int,
+) : AbstractKolor<MutableKolor>() {
+    override fun create(
+        red: Int,
+        green: Int,
+        blue: Int,
+    ): MutableKolor = MutableKolor(red, green, blue)
 
-        return MutableKolor(
-            red + other.red,
-            green + other.green,
-            blue + other.blue,
-        )
-    }
+    fun toKolor(): Kolor = Kolor(red, green, blue)
 
-    operator fun plusAssign(other: Kolor?) {
-        if (other == null) {
-            return
-        }
-
+    operator fun plusAssign(other: Kolor) {
         red += other.red
         green += other.green
         blue += other.blue
+        validate(this)
     }
 
-    operator fun minus(other: Kolor?): MutableKolor {
-        if (other == null) {
-            return this
-        }
-
-        return MutableKolor(
-            red - other.red,
-            green - other.green,
-            blue - other.blue,
-        )
-    }
-
-    operator fun minusAssign(other: Kolor?) {
-        if (other == null) {
-            return
-        }
-
+    operator fun minusAssign(other: Kolor) {
         red -= other.red
         green -= other.green
         blue -= other.blue
+        validate(this)
     }
-
-    operator fun get(component: KolorKomponent): Int =
-        when (component) {
-            KolorKomponent.RED -> red
-            KolorKomponent.GREEN -> green
-            KolorKomponent.BLUE -> blue
-        }
-
-    operator fun set(
-        component: KolorKomponent,
-        value: Int,
-    ) {
-        when (component) {
-            KolorKomponent.RED -> red = value
-            KolorKomponent.GREEN -> green = value
-            KolorKomponent.BLUE -> blue = value
-        }
-    }
-
-    override fun toString(): String = "($red, $green, $blue)"
 }
