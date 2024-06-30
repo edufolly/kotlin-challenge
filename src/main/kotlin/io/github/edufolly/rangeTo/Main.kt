@@ -1,6 +1,6 @@
 @file:Suppress("EmptyRange")
 
-package io.github.edufolly
+package io.github.edufolly.rangeTo
 
 fun main() {
     println(0..5) // 0..5

@@ -1,4 +1,4 @@
-package io.github.edufolly
+package io.github.edufolly.mapLambda
 
 fun main() {
     val map =

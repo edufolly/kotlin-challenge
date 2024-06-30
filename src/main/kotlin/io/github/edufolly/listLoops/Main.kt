@@ -3,7 +3,7 @@
     "ReplaceManualRangeWithIndicesCalls",
 )
 
-package io.github.edufolly
+package io.github.edufolly.listLoops
 
 fun main() {
     val myList = listOf("A", "B", "C", "D", "E", "F")

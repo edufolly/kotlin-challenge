@@ -1,4 +1,4 @@
-package io.github.edufolly
+package io.github.edufolly.operators
 
 fun main() {
     val red = Kolor(255, 0, 0)
