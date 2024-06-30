@@ -25,8 +25,18 @@ fun main() {
         // Must throw an exception
         mutableBlue - red
     } catch (e: IllegalArgumentException) {
-        println(e.message) // Blue must be between 0 and 255: -255
+        println(e.message) // Red must be between 0 and 255: -255
     }
+
+    // Transform blue to magenta.
+    mutableBlue += red
+
+    println(mutableBlue) // MutableKolor(red=255, green=0, blue=255)
+
+    // Back to blue.
+    mutableBlue -= red
+
+    println(mutableBlue) // MutableKolor(red=0, green=0, blue=255)
 }
 
 /**
