@@ -34,4 +34,8 @@ fun main() {
     myList.withIndex().forEach { (index, item) ->
         println("$index: $item")
     }
+
+    myList.forEachIndexed { index, item ->
+        println("$index: $item")
+    }
 }

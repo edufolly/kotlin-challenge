@@ -42,7 +42,7 @@ fun main() {
 /**
  * Interface for kolor classes.
  */
-interface Kolorable<T> {
+interface Kolorable<out T> {
     val red: Int
     val green: Int
     val blue: Int
@@ -67,9 +67,11 @@ abstract class AbstractKolor<T : Kolorable<T>>(
         require(newKolor.red in 0..255) {
             "Red must be between 0 and 255: ${newKolor.red}"
         }
+
         require(newKolor.green in 0..255) {
             "Green must be between 0 and 255: ${newKolor.green}"
         }
+
         require(newKolor.blue in 0..255) {
             "Blue must be between 0 and 255: ${newKolor.blue}"
         }
